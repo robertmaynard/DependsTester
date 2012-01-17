@@ -102,7 +102,10 @@ def addPaths(envpath):
 #this is needed to verify module loading
 def setupApplicationGlobals(appPath):
   global applicationBaseDir
-  applicationBaseDir = os.path.dirname(appPath)
+  #we use lower to make sure captilization doesn't report
+  #incorrect paths because of that
+  applicationBaseDir = os.path.dirname(appPath).lower()
+  print "applicationBaseDir: ", applicationBaseDir
 
 def verifyStatus(row,statusErrors,statusWarnings):
   status = row["Status"]
@@ -129,7 +132,7 @@ def verifyCPU(row,cpuTypes):
 def verifyModule(row,moduleErrors):
   #Module if not in c:\windows\ something
   #or in binarydir it is an error
-  modPath = row["Module"]
+  modPath = row["Module"].lower() #remove any captilization to reduce false positives
   sysPath = "c:\\windows\\"
   if(modPath.find(sysPath) == 0):
     #system path, okay is valid
@@ -180,7 +183,7 @@ def parseResults():
   if(len(ModuleLoadErrors) > 0):
     validResults = False
     print(" ")
-    print("Modules that had incorrect path:")
+    print("Modules that have incorrect path:")
     for entry in ModuleLoadErrors:
       print entry
 
