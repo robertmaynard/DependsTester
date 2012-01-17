@@ -4,7 +4,7 @@
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.  See the above copyright notice for more information.
 
-import fileinput, glob, string, sys, os, re, argparse, tempfile, subprocess 
+import fileinput, glob, string, sys, os, re, argparse, subprocess, time
 
 # -c console mode
 # -f full paths
@@ -13,31 +13,44 @@ import fileinput, glob, string, sys, os, re, argparse, tempfile, subprocess
 
 #we will add on the -oc: argument to specify the path to the output file
 dependsArgs = ["-c", "-f1","-pa1","-pb"]
-dependsOutputArg = "-oc"
-dependsFileHandle = None
+dependsOutputArg = "-oc:"
+dependsFileName = None
 
 #makes the path a window path if it isn't already
 def makeWindowsPath(path):
     return os.path.abspath(path)
 
-def generateTempFile():
-  (handle,filePath)=tempfile.mkstemp(suffix='.csv',prefix='dependsTesterResult',text=True)
-  dependsFileHandle = handle
+def generateTempFileName():
+  fileName = "dependsTesterResult" + str(time.time()) + ".txt"
+  fileDir = "."
+  if('TEMP' in os.environ):
+    fileDir = os.environ['TEMP']
+  elif('TMP' in os.environ):
+    fileDir = os.environ['TMP']
+
+  print fileDir,fileName
+  filePath = os.path.join(fileDir,fileName)
   filePath = makeWindowsPath(filePath)
+
+  global dependsFileName  #yes I know that global vars are yucky
+  dependsFileName = filePath
   return filePath
+
+def removeTempFile():
+  if(dependsFileName):
+    os.remove(dependsFileName)
 
 #builds the string to be used to launch dependency walker
 def buildDependsCommandString(dependsPath,appPath,appArgs):
   #no space between oc: and path
-  tempFile = '"'+generateTempFile()+'"'
-  outputArg = ' '.join([dependsOutputArg,tempFile]) 
+  outputArg = ''.join([dependsOutputArg,generateTempFileName()])
   dependsArgs.append(outputArg)
-  dependsArgs.append(appPath)  
+  dependsArgs.append(appPath)
   #flatten the list into a string
   if(appArgs):
     flattenedAppArgs = ' '.join(appArgs)
     dependsArgs.append(flattenedAppArgs)
-  
+
   flatArgs = ' '.join(dependsArgs)
   return dependsPath+" "+flatArgs
 
@@ -67,7 +80,8 @@ def addPaths(envpath):
 
 #parses the temp file with the results of the run
 def parseResults():
-  for line in open(dependsFileHandle):
+  print dependsFileName
+  for line in open(dependsFileName):
     print line
 
 def main():
@@ -79,21 +93,21 @@ def main():
   parser.add_argument("depends", help='path to dependency walker')
   parser.add_argument(dest="application", help='path to application to test')
   args,appArgs = parser.parse_known_args()
-  
+
   args.depends = makeWindowsPath(args.depends)
   args.application = makeWindowsPath(args.application)
   try:
     isExecutable(args.depends)
     isExecutable(args.application)
   except IOError:
-    if(dependsFileHandle):
-      dependsFileHandle.close()
     print("Unable to launch depends because of invalid executable paths")
   else:
     addPaths(args.envpath)
     result = launchDepends(args.depends,args.application,appArgs)
     if(result):
       parseResults()
+  finally:
+    removeTempFile()
 
 if __name__ == '__main__':
   main()
