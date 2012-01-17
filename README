@@ -1,7 +1,16 @@
 DependsTester
 
-Uses dependency walker profile option to launch an application and verify that it is not missing an dll dependencies.
+Uses dependency walker profile option to launch an application and verify
+that it is not missing an dll dependencies.
 
-ToDo:
-Warn if loading dll to from the same directory
-Error if loading multiple versions of same dll (possible?)
+The python script runs the passed in application and does a full profiling
+on all the dependencies and than verfies that nothing was missing.
+
+Usage:
+dependsTester.py -d dependsTest.exe -a appTest.exe -g "--appArg1 4 --randomArg2 12"
+
+Arguments:
+-d --depends the path to dependency walker
+-a --application the path to the application to test
+-g --application arguments, needs to be a string of arguments like: "-a -f foo"
+
