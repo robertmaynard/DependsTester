@@ -55,35 +55,31 @@ def isExecutable(execPath):
 #launches dependency walker
 def launchDepends(depends,application,appArgs):
   command = buildDependsCommandString(depends,application,appArgs)
-  print "command is", command
+  print "dependency command is: ", command
   result = subprocess.call(command,shell=True)
   return result
 
 #adds the list of paths in envpath to the system path variable
 #before we launch dependency walker
 def addPaths(envpath):
-  p = ';'.join(envpath)
-  os.environ['PATH']=os.environ['PATH']+';'+p
+  if(envpath):
+    os.environ['PATH']=os.environ['PATH']+';'+envpath
+
+#parses the temp file with the results of the run
+def parseResults():
+  for line in open(dependsFileHandle):
+    print line
 
 def main():
   #arguments we need. Path to Depends
   #path to application, arguments for application
   parser = argparse.ArgumentParser(description='profile an application with dependency walker')
-  parser.add_argument('-d', '--depends',
-                     required=True,
-                     help='path to dependency walker')
-  parser.add_argument('-a', '--application',
-                      required=True,
-                      help='path to application to test')
-  parser.add_argument('-g','--applicationArguments',
-                      dest='appArgs',
-                      nargs='+',
-                      help='stores all the application arguments')
-  parser.add_argument('-p','--envpath',
-                      nargs='+',
+  parser.add_argument('--envpath',
                       help='add paths to the system path')
-  args = parser.parse_args()
-
+  parser.add_argument("depends", help='path to dependency walker')
+  parser.add_argument(dest="application", help='path to application to test')
+  args,appArgs = parser.parse_known_args()
+  
   args.depends = makeWindowsPath(args.depends)
   args.application = makeWindowsPath(args.application)
   try:
@@ -95,7 +91,9 @@ def main():
     print("Unable to launch depends because of invalid executable paths")
   else:
     addPaths(args.envpath)
-    launchDepends(args.depends,args.application,args.appArgs)
+    result = launchDepends(args.depends,args.application,appArgs)
+    if(result):
+      parseResults()
 
 if __name__ == '__main__':
   main()
