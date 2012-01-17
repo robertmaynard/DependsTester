@@ -4,7 +4,7 @@
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.  See the above copyright notice for more information.
 
-import fileinput, glob, string, sys, os, re, argparse, subprocess, time
+import fileinput, glob, string, sys, os, re, argparse, subprocess, time, csv, operator
 
 # -c console mode
 # -f full paths
@@ -15,6 +15,8 @@ import fileinput, glob, string, sys, os, re, argparse, subprocess, time
 dependsArgs = ["-c", "-f1","-pa1","-pb"]
 dependsOutputArg = "-oc:"
 dependsFileName = None
+
+applicationBaseDir = None
 
 #makes the path a window path if it isn't already
 def makeWindowsPath(path):
@@ -78,11 +80,123 @@ def addPaths(envpath):
   if(envpath):
     os.environ['PATH']=os.environ['PATH']+';'+envpath
 
+#determine the base directory of the application we are testing
+#this is needed to verify module loading
+def setupApplicationGlobals(appPath):
+  global applicationBaseDir
+  applicationBaseDir = os.path.dirname(appPath)
+
+def verifyStatus(row,statusErrors,statusWarnings):
+  status = row["Status"]
+  #Status with a  ? means missing module
+  #Status with a E means error
+  #Status with a D means delayed load
+  if('DE' in status):
+    #E with a D is grounds for a warning
+    statusWarnings.append(row["Module"])
+  elif ('?' in status or 'E' in status):
+    #E without a D is ground for error
+    statusErrors.append(row["Module"])
+
+def verifyCPU(row,cpuTypes):
+  #CPU entry has to be the same across the board
+  #we are going to count the number of each cpu type occurs
+  #if we find more than 1 we will report it
+  cpu = row["CPU"]
+  if cpu in cpuTypes:
+    cpuTypes[cput]+=1
+  else:
+    cpuTypes["xUnkown"]=1
+
+def verifyModule(row,moduleErrors):
+  #Module if not in c:\windows\ something
+  #or in binarydir it is an error
+  modPath = row["Module"]
+  sysPath = "c:\\windows\\"
+  if(modPath.find(sysPath) == 0):
+    #system path, okay is valid
+    return
+  elif(modPath.find(applicationBaseDir) == 0):
+    #module is in the binary package that is valid
+    return
+  moduleErrors.append(row["Module"])
+
+
 #parses the temp file with the results of the run
 def parseResults():
-  print dependsFileName
-  for line in open(dependsFileName):
-    print line
+  rawFile = open(dependsFileName)
+  reader = csv.DictReader(rawFile)
+
+  #known modules not to test as they don't cause harm
+  knownFalsePositives = ["IESHIMS.DLL","MMTIMER.DLL","WINTAB32.DLL","NVOGLV64.DLL","IEFRAME.DLL","GDI32.DLL","DWMAPI.DLL"]
+
+  #keep track of all the different type of cpu's we see. we will
+  #report back all the least popular types
+  CPUTypes = dict(x64=0,x32=0,xUnkown=0)
+
+  #contain the lines that have issues
+  StatusErrors = []
+  StatusWarnings = []
+  ModuleLoadErrors = []
+  numModules = 0
+  for row in reader:
+    #parse each line skip false positives
+    verifyStatus(row,StatusErrors,StatusWarnings)
+    verifyCPU(row,CPUType,CPUMismatch)
+    verifyModuled(row,ModuleLoadErrors)
+    numModules+=1
+
+  validResults = True
+  if(len(StatusErrors) > 0):
+    validResults = False
+    print(" ")
+    print("Modules that failed to load:")
+    for entry in StatusErrors:
+      print entry
+
+  if(len(StatusWarnings) > 0):
+    print(" ")
+    print("Status Warnings (might no load at a later time):")
+    for entry in StatusWarnings:
+      print entry
+
+  if(len(ModuleLoadErrors) > 0):
+    validResults = False
+    print(" ")
+    print("Modules that had incorrect path:")
+    for entry in ModuleLoadErrors:
+      print entry
+
+  #remove highest counted cpu type
+  #sort values
+  sorted_types = sorted(CPUTypes.iteritems(), key=operator.itemgetter(1))
+  properCPU = sorted_type[-1]
+  if(numModules != properCPU[1]):
+    #number of modules in the largest cpu type doesn't equal total number of modules
+    #we tested
+    print(" ")
+    print("We have modules that have the incorrect CPU Type:")
+    rawFile2 = open(dependsFileName)
+    reader2 = csv.DictReader(rawFile)
+    for row in reader2:
+      if row["CPU"] != properCPU[0]:
+         print row["Module"]
+
+  if(not validResults):
+    print("!" * 80)
+    print("!" * 80)
+    print(" Program Failed Dependency Check ")
+    print("!" * 80)
+    print("!" * 80)
+  else:
+    print("#" * 80)
+    print("#" * 80)
+    print(" Program Valid ")
+    print("#" * 80)
+    print("#" * 80)
+
+  reader.close()
+  rawFile.close()
 
 def main():
   #arguments we need. Path to Depends
@@ -105,7 +219,8 @@ def main():
     addPaths(args.envpath)
     result = launchDepends(args.depends,args.application,appArgs)
     if(result):
-      parseResults()
+      setupApplicationGlobals(args.application)
+      parseResults(args.application)
   finally:
     removeTempFile()
 
