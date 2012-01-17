@@ -7,10 +7,12 @@ The python script runs the passed in application and does a full profiling
 on all the dependencies and than verfies that nothing was missing.
 
 Usage:
-dependsTester.py -d dependsTest.exe -a appTest.exe -g "--appArg1 4 --randomArg2 12"
+dependsTester.py dependsTest.exe appTest.exe --appArg1 4 --randomArg2 12
 
 Arguments:
--d --depends the path to dependency walker
--a --application the path to the application to test
--g --application arguments, needs to be a string of arguments like: "-a -f foo"
+First Argument: Path to dependency walker
+Second Argument: Path to application to profile
+--envPath: Extra paths to add to the enviornment. 
+All other arguments are passed through as arguments to the application to test
+
 
