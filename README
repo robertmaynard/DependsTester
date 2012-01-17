@@ -1,0 +1,7 @@
+DependsTester
+
+Uses dependency walker profile option to launch an application and verify that it is not missing an dll dependencies.
+
+ToDo:
+Warn if loading dll to from the same directory
+Error if loading multiple versions of same dll (possible?)
