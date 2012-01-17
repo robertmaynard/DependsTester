@@ -3,16 +3,22 @@ DependsTester
 Uses dependency walker profile option to launch an application and verify
 that it is not missing an dll dependencies.
 
-The python script runs the passed in application and does a full profiling
-on all the dependencies and than verfies that nothing was missing.
+The script checks for four types of errors:
+1. Makes sure that all dll's have the same CPUType.
+2. Verifies that no dll was missing
+3. Verifies that no dll failed to load
+3. Checks dll load path to make sure it was a system dll or is contained in
+    the same directory as the executable or a subdirectory.
 
-Usage:
-dependsTester.py dependsTest.exe appTest.exe --appArg1 4 --randomArg2 12
+Requires:
+  Dependency Walker - www.dependencywalker.com
+  Python 2.7 - www.python.org
 
-Arguments:
-First Argument: Path to dependency walker
-Second Argument: Path to application to profile
---envPath: Extra paths to add to the enviornment. 
-All other arguments are passed through as arguments to the application to test
+Example:
+  dependsTester.py dependsTest.exe appTest.exe --appArg1 4 --randomArg2 12
 
-
+Argument Info:
+  First Argument: Path to dependency walker
+  Second Argument: Path to application to profile
+  --envPath: Extra paths to add to the enviornment.
+  All other arguments are passed through as arguments to the application to test
