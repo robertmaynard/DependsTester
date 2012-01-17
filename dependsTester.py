@@ -4,7 +4,8 @@
 #  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #  PURPOSE.  See the above copyright notice for more information.
 
-import fileinput, glob, string, sys, os, re, argparse, subprocess, time, csv, operator
+import fileinput, glob, string, sys, os, re, argparse
+import subprocess, time, csv, operator
 
 # -c console mode
 # -f full paths
@@ -14,9 +15,26 @@ import fileinput, glob, string, sys, os, re, argparse, subprocess, time, csv, op
 #we will add on the -oc: argument to specify the path to the output file
 dependsArgs = ["-c", "-f1","-pa1","-pb"]
 dependsOutputArg = "-oc:"
-dependsFileName = None
 
+#global variables that we need
+dependsFileName = None
 applicationBaseDir = None
+
+#known modules not to test as they don't cause harm
+knownFalsePositives = ["IESHIMS.DLL","MMTIMER.DLL","WINTAB32.DLL","NVOGLV64.DLL","IEFRAME.DLL","GDI32.DLL","DWMAPI.DLL"]
+
+#generator that skips false positive modules
+def skip_false_positives(reader):
+  for row in reader:
+    valid = True
+    mod = row["Module"]
+    for fp in knownFalsePositives:
+      if fp in mod:
+        valid = False
+        break
+    if(valid):
+      yield row
+
 
 #makes the path a window path if it isn't already
 def makeWindowsPath(path):
@@ -104,7 +122,7 @@ def verifyCPU(row,cpuTypes):
   #if we find more than 1 we will report it
   cpu = row["CPU"]
   if cpu in cpuTypes:
-    cpuTypes[cput]+=1
+    cpuTypes[cpu]+=1
   else:
     cpuTypes["xUnkown"]=1
 
@@ -127,9 +145,6 @@ def parseResults():
   rawFile = open(dependsFileName)
   reader = csv.DictReader(rawFile)
 
-  #known modules not to test as they don't cause harm
-  knownFalsePositives = ["IESHIMS.DLL","MMTIMER.DLL","WINTAB32.DLL","NVOGLV64.DLL","IEFRAME.DLL","GDI32.DLL","DWMAPI.DLL"]
-
   #keep track of all the different type of cpu's we see. we will
   #report back all the least popular types
   CPUTypes = dict(x64=0,x32=0,xUnkown=0)
@@ -139,12 +154,14 @@ def parseResults():
   StatusWarnings = []
   ModuleLoadErrors = []
   numModules = 0
-  for row in reader:
+  for row in skip_false_positives(reader):
     #parse each line skip false positives
     verifyStatus(row,StatusErrors,StatusWarnings)
-    verifyCPU(row,CPUType,CPUMismatch)
-    verifyModuled(row,ModuleLoadErrors)
+    verifyCPU(row,CPUTypes)
+    verifyModule(row,ModuleLoadErrors)
     numModules+=1
+
+  rawFile.close()
 
   validResults = True
   if(len(StatusErrors) > 0):
@@ -169,19 +186,21 @@ def parseResults():
 
   #remove highest counted cpu type
   #sort values
-  sorted_types = sorted(CPUTypes.iteritems(), key=operator.itemgetter(1))
-  properCPU = sorted_type[-1]
+  sorted_cputypes = sorted(CPUTypes.iteritems(), key=operator.itemgetter(1))
+  properCPU = sorted_cputypes[-1]
   if(numModules != properCPU[1]):
     #number of modules in the largest cpu type doesn't equal total number of modules
     #we tested
     print(" ")
     print("We have modules that have the incorrect CPU Type:")
-    rawFile2 = open(dependsFileName)
-    reader2 = csv.DictReader(rawFile)
-    for row in reader2:
+    rawFile = open(dependsFileName)
+    reader = csv.DictReader(rawFile)
+    for row in skip_false_positives(reader):
       if row["CPU"] != properCPU[0]:
          print row["Module"]
+    rawFile.close()
 
+  print(" ")
   if(not validResults):
     print("!" * 80)
     print("!" * 80)
@@ -194,9 +213,7 @@ def parseResults():
     print(" Program Valid ")
     print("#" * 80)
     print("#" * 80)
-
-  reader.close()
-  rawFile.close()
+  print(" ")
 
 def main():
   #arguments we need. Path to Depends
@@ -220,7 +237,7 @@ def main():
     result = launchDepends(args.depends,args.application,appArgs)
     if(result):
       setupApplicationGlobals(args.application)
-      parseResults(args.application)
+      parseResults()
   finally:
     removeTempFile()
 
