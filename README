@@ -1,7 +1,9 @@
 DependsTester
 
 Uses dependency walker profile option to launch an application and verify
-that it is not missing an dll dependencies.
+that it is not missing an dll dependencies. Make sure to use the same
+architecture type for dependency walker as the executable so you don't get
+false positives.
 
 The script checks for four types of errors:
 1. Makes sure that all dll's have the same CPUType.
