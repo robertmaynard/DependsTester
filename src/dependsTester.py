@@ -150,7 +150,7 @@ def parseResults():
 
   #keep track of all the different type of cpu's we see. we will
   #report back all the least popular types
-  CPUTypes = dict(x64=0,x32=0,xUnkown=0)
+  CPUTypes = dict(x64=0,x86=0,xUnkown=0)
 
   #contain the lines that have issues
   StatusErrors = []
