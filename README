@@ -1,26 +1,31 @@
 DependsTester
 
-Uses dependency walker profile option to launch an application and verify
-that it is not missing an dll dependencies. Make sure to use the same
-architecture type for dependency walker as the executable so you don't get
-false positives.
+DependencyTester is a console application that will profile an application with dependency walker.
+The goal is to verify that all dll's that are used are the ones that are bundled with the application.
 
-The script checks for four types of errors:
-1. Makes sure that all dll's have the same CPUType.
-2. Verifies that no dll was missing
-3. Verifies that no dll failed to load
-3. Checks dll load path to make sure it was a system dll or is contained in
-    the same directory as the executable or a subdirectory.
+DependencyTester checks for four types of errors:
+	1.  Mixture of CPUType.
+	2. Missing DLL.
+	3. Failure to load.
+	4. Invalid load path.
+
+With dependency walker it is very easy to verify the first 3 but not the 4th. 
+DependencyTester on the other hand considers any DLL that isn't located in a Windows system folder or 
+with the executable to be invalid. For example this helps spot an issue where an application depends on 
+Qt but hasn't properly installed the Qt dll's, but the program runs because it loads a different programs 
+installed Qt dll's that are in the users PATH enviorment variable.
 
 Requires:
   Dependency Walker - www.dependencywalker.com
-  Python 2.7 - www.python.org
 
 Example:
-  dependsTester.py dependsTest.exe appTest.exe --appArg1 4 --randomArg2 12
+  dependsTester.exe dependsTest.exe appTest.exe --appArg1 4 --randomArg2 12
 
 Argument Info:
   First Argument: Path to dependency walker
   Second Argument: Path to application to profile
   --envPath: Extra paths to add to the enviornment.
   All other arguments are passed through as arguments to the application to test
+
+Developer Info:
+  DependencyTester currently only supports Python 2.7
