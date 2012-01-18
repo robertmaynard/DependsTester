@@ -1,0 +1,6 @@
+Add HHCTRL.OCX to false positives
+Add SHLWAPI.DLL to false positives
+add %systemroot% to acceptable paths
+
+Maybe make false positives be called system libs.
+Clean up the search code to be faster?
