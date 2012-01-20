@@ -86,7 +86,7 @@ def generateTempFileName():
   return filePath
 
 def removeTempFile():
-  if(dependsFileName):
+  if(dependsFileName and os.path.isfile(dependsFileName)):
     os.remove(dependsFileName)
 
 #builds the string to be used to launch dependency walker
