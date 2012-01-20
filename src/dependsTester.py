@@ -64,7 +64,10 @@ def skip_false_positives(reader):
 
 #makes the path a window path if it isn't already
 def makeWindowsPath(path):
-    return os.path.abspath(path)
+  return os.path.abspath(path)
+
+def quotePath(path):
+  return "\""+path+"\""
 
 def generateTempFileName():
   fileName = "dependsTesterResult" + str(time.time()) + ".txt"
@@ -89,16 +92,16 @@ def removeTempFile():
 #builds the string to be used to launch dependency walker
 def buildDependsCommandString(dependsPath,appPath,appArgs):
   #no space between oc: and path
-  outputArg = ''.join([dependsOutputArg,generateTempFileName()])
+  outputArg = ''.join([dependsOutputArg,quotePath(generateTempFileName())])
   dependsArgs.append(outputArg)
-  dependsArgs.append(appPath)
+  dependsArgs.append(quotePath(appPath))
   #flatten the list into a string
   if(appArgs):
     flattenedAppArgs = ' '.join(appArgs)
     dependsArgs.append(flattenedAppArgs)
 
   flatArgs = ' '.join(dependsArgs)
-  return dependsPath+" "+flatArgs
+  return quotePath(dependsPath)+" "+flatArgs
 
 #verfies that a file exists and is an executable
 def isExecutable(execPath):
