@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+
+  <title>robertmaynard/DependsTester @ GitHub</title>
+
+  <style type="text/css">
+    body {
+      margin-top: 1.0em;
+      background-color: #7045a5;
+      font-family: Helvetica, Arial, FreeSans, san-serif;
+      color: #ffffff;
+    }
+    #container {
+      margin: 0 auto;
+      width: 700px;
+    }
+    h1 { font-size: 3.8em; color: #8fba5a; margin-bottom: 3px; }
+    h1 .small { font-size: 0.4em; }
+    h1 a { text-decoration: none }
+    h2 { font-size: 1.5em; color: #8fba5a; }
+    h3 { text-align: center; color: #8fba5a; }
+    a { color: #8fba5a; }
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+    .download { float: right; }
+    pre { background: #000; color: #fff; padding: 15px;}
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+  </style>
+</head>
+
+<body>
+  <a href="https://github.com/robertmaynard/DependsTester"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+  <div id="container">
+
+    <div class="download">
+      <a href="https://github.com/robertmaynard/DependsTester/zipball/master">
+        <img border="0" width="90" src="https://github.com/images/modules/download/zip.png"></a>
+      <a href="https://github.com/robertmaynard/DependsTester/tarball/master">
+        <img border="0" width="90" src="https://github.com/images/modules/download/tar.png"></a>
+    </div>
+
+    <h1><a href="https://github.com/robertmaynard/DependsTester">DependsTester</a>
+      <span class="small">by <a href="https://github.com/robertmaynard">robertmaynard</a></span></h1>
+
+    <div class="description">
+      DependencyTester is a console application that will profile an application with dependency walker. The goal is to verify that all dll's that are used are the ones that are bundled with the application.
+    </div>
+
+    
+      <p>DependsTester
+
+DependencyTester is a console application that will profile an application with dependency walker. The goal is to verify that all dll's that are used are the ones that are bundled with the application.
+
+DependencyTester checks for four types of errors:
+	1.  Mixture of CPUType.
+	2. Missing DLL.
+	3. Failure to load.
+	4. Invalid load path.
+
+With dependency walker it is very easy to verify the first 3 but not the 4th. 
+DependencyTester on the other hand considers any DLL that isn't located in a Windows system folder or with the executable to be invalid. For example this helps spot an issue when an application depends on Qt but hasn't properly installed the Qt dll's. The program runs because it loads a different programs installed Qt dll's that are in the users PATH enviorment variable.
+
+Requires:
+  Dependency Walker - www.dependencywalker.com
+
+Example:
+  dependsTester.exe dependsTest.exe appTest.exe --appArg1 4 --randomArg2 12
+
+Argument Info:
+  First Argument: Path to dependency walker
+  Second Argument: Path to application to profile
+  --envPath: Extra paths to add to the enviornment.
+  All other arguments are passed through as arguments to the application to test
+</p>
+    
+
+    
+      <h2>Dependencies</h2>
+      <p>Python 2.7</p>
+    
+
+    
+
+    
+      <h2>License</h2>
+      <p>BSD</p>
+    
+
+    
+      <h2>Authors</h2>
+      <p>Robert Maynard (robert.maynard@kitware.com)<br/>      </p>
+    
+
+    
+      <h2>Contact</h2>
+      <p>Robert Maynard (robert.maynard@kitware.com)<br/>      </p>
+    
+
+    <h2>Download</h2>
+    <p>
+      You can download this project in either
+      <a href="https://github.com/robertmaynard/DependsTester/zipball/master">zip</a> or
+      <a href="https://github.com/robertmaynard/DependsTester/tarball/master">tar formats.
+    </p>
+    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+      by running:
+      <pre>$ git clone git://github.com/robertmaynard/DependsTester</pre>
+    </p>
+
+    <div class="footer">
+      get the source code on GitHub : <a href="https://github.com/robertmaynard/DependsTester">robertmaynard/DependsTester</a>
+    </div>
+
+  </div>
+
+</body>
+</html>
