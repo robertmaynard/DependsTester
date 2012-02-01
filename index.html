@@ -10,7 +10,7 @@
       margin-top: 1.0em;
       background-color: #f6f6ef;
       font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #ffffff;
+      color: #2200000;
     }
     #container {
       margin: 0 auto;
@@ -49,37 +49,20 @@
       DependencyTester is a console application that will profile an application with dependency walker. The goal is to verify that all dll's that are used are the ones that are bundled with the application.
     </div>
 
-    
-      <p>DependsTester
+<p>DependencyTester checks for four types of errors:</p>
+<ol>
+<li>Mixture of CPUType.</li>
+<li>Missing DLL.</li>
+<li>Failure to load.</li>
+<li>Invalid load path.</li>
+</ol>
+<p> With dependency walker it is very easy to verify the first 3 but not the 4th. DependencyTester on the other hand considers any DLL that isn't located in a Windows system folder or with the executable to be invalid. For example this helps spot an issue when an application depends on Qt but hasn't properly installed the Qt dll's. The program runs because it loads a different programs installed Qt dll's that are in the users PATH enviorment variable.</p>
 
-DependencyTester is a console application that will profile an application with dependency walker. The goal is to verify that all dll's that are used are the ones that are bundled with the application.
-
-DependencyTester checks for four types of errors:
-	1.  Mixture of CPUType.
-	2. Missing DLL.
-	3. Failure to load.
-	4. Invalid load path.
-
-With dependency walker it is very easy to verify the first 3 but not the 4th. 
-DependencyTester on the other hand considers any DLL that isn't located in a Windows system folder or with the executable to be invalid. For example this helps spot an issue when an application depends on Qt but hasn't properly installed the Qt dll's. The program runs because it loads a different programs installed Qt dll's that are in the users PATH enviorment variable.
-
-Requires:
-  Dependency Walker - www.dependencywalker.com
-
-Example:
-  dependsTester.exe dependsTest.exe appTest.exe --appArg1 4 --randomArg2 12
-
-Argument Info:
-  First Argument: Path to dependency walker
-  Second Argument: Path to application to profile
-  --envPath: Extra paths to add to the enviornment.
-  All other arguments are passed through as arguments to the application to test
-</p>
     
 
     
       <h2>Dependencies</h2>
-      <p>Python 2.7</p>
+      <p>Dependency Walker - www.dependencywalker.com</p>
     
 
     
